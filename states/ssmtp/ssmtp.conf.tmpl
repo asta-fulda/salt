@@ -1,0 +1,14 @@
+root={{ pillar['ssmtp']['root']['mail'] }}
+
+mailhub=smtp.gmail.com:587
+rewriteDomain=asta.hs-fulda.org
+
+hostname=asta.hs-fulda.org
+
+useTLS=Yes
+useSTARTTLS=Yes
+
+authUser=utils@asta.hs-fulda.org
+authPass={{ pillar['ssmtp']['utils']['password'] }}
+
+fromLineOverride=yes

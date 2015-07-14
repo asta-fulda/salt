@@ -1,0 +1,40 @@
+config_version	1.2
+
+snapshot_root	/.snapshots/
+no_create_root	1
+
+cmd_cp		/usr/bin/cp
+cmd_rm		/usr/bin/rm
+cmd_rsync	/usr/bin/rsync
+cmd_ssh		/usr/bin/ssh
+cmd_logger	/usr/bin/logger
+cmd_du		/usr/bin/du
+
+{% for retention in pillar['rsnapshot']['retentions'] -%}
+retain		{{ retention|first }} {{ retention[retention|first] }}
+{% endfor %}
+
+verbose		2
+loglevel	3
+logfile		/var/log/rsnapshot
+
+lockfile	/var/run/rsnapshot.pid
+
+link_dest	1
+sync_first	1
+
+{% for host in pillar['hosts'] %}
+backup			root@{{pillar['hosts'][host]['network']['ipv4']['srv']}}:/etc/		{{host}}/
+{% endfor %}
+
+{% for host in pillar['backups']['mysql'] %}
+backup_script		/usr/bin/ssh root@{{pillar['hosts'][host]['network']['ipv4']['srv']}} mysqldump --all-databases --create-options --events | gzip > mysql.dump	{{host}}/mysql/
+{% endfor %}
+
+{% for host in pillar['backups']['postgresql'] %}
+backup_script		/usr/bin/ssh root@{{pillar['hosts'][host]['network']['ipv4']['srv']}} "cd /; su postgres -c pg_dumpall" | gzip > pgsql.dump	{{host}}/pgsql/
+{% endfor %}
+
+{% for script in pillar['backups']['script'] %}
+backup_script		/usr/bin/ssh root@{{pillar['hosts'][script|first]['network']['ipv4']['srv']}} {{script[script|first]}}	{{script|first}}/script/
+{% endfor %}

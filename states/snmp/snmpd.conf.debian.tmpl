@@ -1,0 +1,15 @@
+agentAddress udp:161,udp6:[::1]:161
+
+rocommunity {{ pillar['snmp']['community'] }} default
+
+view   systemonly  included   .1.3.6.1.2.1.1
+view   systemonly  included   .1.3.6.1.2.1.25.1
+
+sysLocation    {{ pillar['snmp']['location'] }}
+sysContact     {{ pillar['snmp']['contact'] }}
+sysServices    42
+
+#This line allows Observium to detect the host OS if the distro script is installed
+extend .1.3.6.1.4.1.2021.7890.1 distro /usr/local/bin/distro
+
+#includeDir /etc/snmp/snmpd.conf.d
